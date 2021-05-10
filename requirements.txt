@@ -1,0 +1,5 @@
+kopf 
+kopf[full-auth]
+requests
+pyfiglet
+boto3
