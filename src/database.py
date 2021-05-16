@@ -1,5 +1,6 @@
 import boto3
 import time
+import logging
 
 
 class AWSDatabase(object):
@@ -7,6 +8,8 @@ class AWSDatabase(object):
     Configuration object for AWS RDS Database
     @author Jaap Gorjup
     '''
+
+    logger = logging.getLogger('mm.awsrds.database')
 
     DEFAULT_ENGINE_NAME = 'postgresql'
     DEFAULT_ENGINE_VERSION = '12'

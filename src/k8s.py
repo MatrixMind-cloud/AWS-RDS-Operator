@@ -1,4 +1,5 @@
 from kubernetes import client, config
+import logging
 
 
 class DatabaseSecret(object):
@@ -6,6 +7,8 @@ class DatabaseSecret(object):
     Utility class to manage usernames and passwords for databases stored in K8s
     @author Jaap Gorjup
     '''
+
+    logger = logging.getLogger('mm.awsrds.k8s')
 
     def __init__(name, namespace, username=None, password=None):
         '''
@@ -47,6 +50,8 @@ spec:
   type: ExternalName
   externalName: usermgmtdb.c7hldelt9xfp.us-east-1.rds.amazonaws.com
     '''
+
+    logger = logging.getLogger('mm.awsrds.k8s')
 
     def __init__(name, namespace, externalname):
         '''

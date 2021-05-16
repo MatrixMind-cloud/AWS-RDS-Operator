@@ -20,14 +20,6 @@ AWS_REGION = os.environ.get('AWS_REGION', 'eu-central-1')
 AWS_ACCESS = os.environ.get('AWS_ACCESS', '')
 AWS_SECRET = os.environ.get('AWS_SECRET', '')
 
-# TODO most variables come from comfig so these should be env defaults
-DEFAULT_ENGINE_NAME = 'postgresql'
-DEFAULT_ENGINE_VERSION = ''
-DEFAULT_DB_INSTANCE_TYPE = 'm1.small'
-DEFAULT_DB_NAME = 'pg_db'
-DEFAULT_DB_USER_NAME = 'db_user'
-DEFAULT_DB_USER_PASSWORD = 'db_pass123'
-
 '''
 Default logger scope
 '''
@@ -47,19 +39,24 @@ my_config = Config(
 #   aws_access_key_id=AWS_ACCESS,
 #   aws_secret_access_key=AWS_SECRET
 
-
-@kopf.on.event('', 'v1', 'mm-rds')
-async def my_handler(spec, **_):
-    '''
-    Handlers for RDS database object events in Kubernetes.
-    '''
-    logger.info('Generic event detected')
+# During init : detect cloud or check parameters (development)
 
 
-@kopf.on.create('', 'v1', 'mm-rds')
-def my_update_handler(spec, **_):
+@kopf.on.resume('', 'v1', 'rdsdatabases')
+@kopf.on.create('', 'v1', 'rdsdatabases')
+def my_create_handler(spec,  name, namespace, logger, **kwargs):
     logger.info('Create database detected')
+    logger.debug(spec)
 
+    # input checking
+    size = spec.get('size')
+    if not size:
+        raise kopf.PermanentError(f"Size must be set. Got {size!r}.")
+
+    # Waiting for database ready error
+    # if not is_data_ready():
+    #    raise kopf.TemporaryError("The data is not yet ready.", delay=60)
+        
     # 1. Create or load secrets
     # 2. Create database
 
@@ -70,9 +67,21 @@ def my_update_handler(spec, **_):
     # 4. Create per account secret with username and password
 
 
-@kopf.on.delete('', 'v1', 'mm-rds')
+@kopf.on.update('', 'v1', 'rdsdatabases')
+def my_update_handler(spec, old, new, diff, **_):
+    # Input check
+    # Find RDS database
+    # Update value
+    pass
+
+
+@kopf.on.delete('', 'v1', 'rdsdatabases')
 def my_delete_handler(spec, **_):
     logger.info('Delete database detected')
+    # 1. Start snapshot 
+    # 2. Check if DELETE_PROTECTION is enabled
+    # 3. If not enable delete database
+    # 4. Delete service
     pass
 
 
@@ -82,5 +91,5 @@ Nice initialization header
 print('')
 custom_fig = Figlet(font='graffiti')
 print(custom_fig.renderText('Matrixmind'))
-print("Project: AWS RDS Operator")
+print("Project: Cloud Database Operator")
 print("--------------------------------------")

@@ -5,5 +5,5 @@
 \____|__  (____  /__|  |__|  |__/__/\_ \__|_|  /__|___|  /\____ | 
         \/     \/                     \/     \/        \/      \/ 
 
-Project: Netscaler Endpoint Controller
+Project: AWS RDS Operator
 --------------------------------------
