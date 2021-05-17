@@ -1,5 +1,7 @@
 # AWS-RDS-Operator
 
+[![build](https://github.com/MatrixMind-cloud/AWS-RDS-Operator/actions/workflows/main.yml/badge.svg)](https://github.com/MatrixMind-cloud/AWS-RDS-Operator/actions/workflows/main.yml)
+
 ## Local test
 
 In order to run it on your machine ensure you need to have a connection to a Kubernetes cluster.
