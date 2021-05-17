@@ -56,6 +56,7 @@ Project is still WIP and is an aside project.
 
 Needed to get into alpha phase:
 
+- [x] Docker container building in Github
 - [ ] Finalize CRD yaml according to spec in README
 - [ ] AWS access code initializer
 - [ ] Code on.create handler using the k8s and rds tooling
@@ -66,6 +67,7 @@ Needed to get into alpha phase:
 
 Additional nice to haves:
 
+- [ ] Minimization of Docker container size through Dockerslim
 - [ ] Add support for MySQL
 - [ ] Cross cloud support (Azure, GCP)
 - [ ] On premise fallback option using another operator (configurable)
