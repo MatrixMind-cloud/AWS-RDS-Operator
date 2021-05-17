@@ -29,7 +29,7 @@ class AWSDatabase(object):
         self.db_instance_name = db_instance_name
         self.rds_client = boto3.client("rds", config=aws_config)
 
-    def check_if_exists():
+    def exists(self):
         '''
         Checks if the database exists in AWS 
         Returns the ExternalName of the database server or False when absent
@@ -55,6 +55,11 @@ class AWSDatabase(object):
                 DBParameterGroupName=db_param_grp_name,
                 DBParameterGroupFamily=db_param_grp_family,
                 Description='%s DB Params Group' % self.db_instance_name)
+
+# botocore.exceptions.ClientError: An error occurred(InvalidParameterValue)
+# when calling the CreateDBParameterGroup operation:
+# ParameterGroupFamily databasename_param_family is not a valid parameter group family
+
         if db_params_response['ResponseMetadata']['HTTPStatusCode'] == 200:
             print("Created DB parameters group %s" % db_param_grp_name)
         else:

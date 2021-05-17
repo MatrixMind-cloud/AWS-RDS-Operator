@@ -1,7 +1,6 @@
 import os
 import kopf
 import logging
-import time
 
 from database import AWSDatabase
 from k8s import DatabaseSecret
@@ -15,43 +14,42 @@ Variables that can be set using environment and defaults
 '''
 DEVELOPMENT = os.environ.get('DEVELOPMENT', 'False').lower() == 'true'
 K8S_SSL_VERIFY = bool(os.environ.get('K8S_SSL_VERIFY', 'False'))
-
-AWS_REGION = os.environ.get('AWS_REGION', 'eu-central-1')
-AWS_ACCESS = os.environ.get('AWS_ACCESS', '')
-AWS_SECRET = os.environ.get('AWS_SECRET', '')
+DRY_RUN = bool(os.environ.get('K8S_SSL_VERIFY', 'False'))
 
 '''
 Default logger scope
 '''
 logger = logging.getLogger('mm.awsrds.controller')
 
-# TODO initialize based on config with keys or without for Kube2IAM
-# TODO place these in a class wrapper
 my_config = Config(
-    region_name=AWS_REGION,
+    region_name=os.environ.get('AWS_REGION', 'eu-central-1'),
     signature_version='v4',
     retries={
         'max_attempts': 10,
         'mode': 'standard'
     }
 )
-# TODO add these to config if not empty
-#   aws_access_key_id=AWS_ACCESS,
-#   aws_secret_access_key=AWS_SECRET
-
-# During init : detect cloud or check parameters (development)
 
 
-@kopf.on.resume('', 'v1', 'rdsdatabases')
-@kopf.on.create('', 'v1', 'rdsdatabases')
+@kopf.on.resume('matrixmind.cloud', 'v1', 'RDSDatabase')
+@kopf.on.create('matrixmind.cloud', 'v1', 'RDSDatabase')
 def my_create_handler(spec,  name, namespace, logger, **kwargs):
     logger.info('Create database detected')
     logger.debug(spec)
 
     # input checking
-    size = spec.get('size')
-    if not size:
-        raise kopf.PermanentError(f"Size must be set. Got {size!r}.")
+    size = spec.get('size', '10G')
+    version = spec.get('version', '12')
+    masteruser = spec.get('masteruser','sysadmin')
+
+    # create secret for masteruser and get password
+
+    database = AWSDatabase(name, my_config)
+    if not database.exists():
+        database.create('test123', name, masteruser)
+
+    # if not size:
+    #     raise kopf.PermanentError(f"Size must be set. Got {size!r}.")
 
     # Waiting for database ready error
     # if not is_data_ready():
@@ -67,7 +65,7 @@ def my_create_handler(spec,  name, namespace, logger, **kwargs):
     # 4. Create per account secret with username and password
 
 
-@kopf.on.update('', 'v1', 'rdsdatabases')
+@kopf.on.update('matrixmind.cloud', 'v1', 'RDSDatabase')
 def my_update_handler(spec, old, new, diff, **_):
     # Input check
     # Find RDS database
@@ -75,7 +73,7 @@ def my_update_handler(spec, old, new, diff, **_):
     pass
 
 
-@kopf.on.delete('', 'v1', 'rdsdatabases')
+@kopf.on.delete('matrixmind.cloud', 'v1', 'RDSDatabase')
 def my_delete_handler(spec, **_):
     logger.info('Delete database detected')
     # 1. Start snapshot 
