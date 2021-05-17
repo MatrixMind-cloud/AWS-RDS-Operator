@@ -1,7 +1,7 @@
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
-  name: rds.matrixmind.cloud
+  name: rdsdatabases.matrixmind.cloud
 spec:
   scope: Namespaced
   group: matrixmind.cloud
@@ -12,16 +12,96 @@ spec:
     shortNames:
       - rds
   versions:
-    - name: v1
-      served: true
-      storage: true
-      schema:
-        openAPIV3Schema:
-          type: object
-          properties:
-            spec:
-              type: object
-              x-kubernetes-preserve-unknown-fields: true
-            status:
-              type: object
-              x-kubernetes-preserve-unknown-fields: true
+  - name: v1
+    served: true
+    storage: true
+    subresources:
+      status: {}
+    additionalPrinterColumns:
+    - name: Database
+      type: string
+      description: Database type
+      jsonPath: .spec.type
+    - name: Version
+      type: string
+      description: Database version
+      jsonPath: .spec.version
+    - name: Volume
+      type: string
+      description: Size of the bound volume
+      jsonPath: .spec.size
+    - name: Status
+      type: string
+      description: Current sync status of database resource
+      jsonPath: .status.DatabaseStatus
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            x-kubernetes-preserve-unknown-fields: true
+            properties:
+              type:
+                type: string
+                enum:
+                - "postgresql"
+                - "mysql"
+              version: 
+                type: string
+              size:
+                type: string
+                pattern: '^(\d+(e\d+)?|\d+(\.\d+)?(e\d+)?[EPTGMK]i?)$'
+              masteruser:
+                type: string
+              databases:
+                type: object
+                additionalProperties:
+                  type: array
+                  nullable: true
+                  items:
+                    type: string
+              users:
+                type: object
+                additionalProperties:
+                  type: array
+                  nullable: true
+                  description: "Role flags specified here must not contradict each other"
+                  items:
+                    type: string
+                    enum:
+                    - bypassrls
+                    - BYPASSRLS
+                    - nobypassrls
+                    - NOBYPASSRLS
+                    - createdb
+                    - CREATEDB
+                    - nocreatedb
+                    - NOCREATEDB
+                    - createrole
+                    - CREATEROLE
+                    - nocreaterole
+                    - NOCREATEROLE
+                    - inherit
+                    - INHERIT
+                    - noinherit
+                    - NOINHERIT
+                    - login
+                    - LOGIN
+                    - nologin
+                    - NOLOGIN
+                    - replication
+                    - REPLICATION
+                    - noreplication
+                    - NOREPLICATION
+                    - superuser
+                    - SUPERUSER
+                    - nosuperuser
+                    - NOSUPERUSER
+              backup:
+                type: object
+                properties:
+                  every:
+                    type: string
+                  retention:
+                    type: string

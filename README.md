@@ -16,6 +16,7 @@ local.sh
 ## Kubernetes syntax
 
 ``` yaml
+apiVersion: matrixmind.cloud/v1 
 kind: RDSDatabase
 metadata: 
     name: databasename
@@ -26,14 +27,16 @@ spec:
     size: 10GB (default)
     masteruser: sysadmin (default)
     users:
-    - username1
-    - username2
+      username1: 
+        - superuser
+        - createdb
+      username2: []
     databases:
-    - database1:
-        - user: username1
-          role: admin
-        - user: username1
-          role: user
+      database1: 
+        - username1
+        - username2
+      database2: 
+        - username1
     backup:
         every: 24h (default)
         retention: 7d (default)
@@ -59,7 +62,7 @@ Project is still WIP and is an aside project.
 Needed to get into alpha phase:
 
 - [x] Docker container building in Github
-- [ ] Finalize CRD yaml according to spec in README
+- [x] Finalize CRD yaml according to spec in README
 - [ ] AWS access code initializer
 - [ ] Code on.create handler using the k8s and rds tooling
 - [ ] Code on.update handler determining the difference either size or users

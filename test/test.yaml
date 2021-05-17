@@ -1,0 +1,24 @@
+apiVersion: matrixmind.cloud/v1
+kind: RDSDatabase
+metadata: 
+    name: databasename
+    namespace: default
+spec:
+    type: postgresql
+    version: "12"
+    size: 10G
+    masteruser: sysadmin 
+    users:
+      username1: 
+        - superuser
+        - createdb
+      username2: []
+    databases:
+      database1: 
+        - username1
+        - username2
+      database2: 
+        - username1
+    backup:
+        every: 24h
+        retention: 7d
